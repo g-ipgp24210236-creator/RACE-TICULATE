@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ARTICULAT-RACER | Pixel Phonics Kart</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a1020;--red:#e52521;--yel:#fbd000;--grn:#43b047;--blu:#5c94fc;--pnk:#ff7ac8;--brn:#c84c0c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Courier New",monospace;font-weight:bold;color:var(--ink);background:linear-gradient(var(--blu) 0 92%,var(--grn) 92% 94%,var(--brn) 94%) fixed;image-rendering:pixelated}
+button{font-family:"Press Start 2P",monospace;font-size:.62rem;border:4px solid var(--ink);padding:10px 12px;cursor:pointer;color:var(--ink);box-shadow:0 4px 0 var(--ink);border-radius:0}
+button:active{transform:translateY(4px);box-shadow:none}button:disabled{opacity:.5}
+.app{max-width:1000px;margin:auto;padding:14px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{font:1.3rem/1.4 "Press Start 2P",monospace;margin:0;color:#fff;text-shadow:4px 4px 0 var(--ink)}h1 span{color:var(--yel)}
+h2,h3{font-family:"Press Start 2P",monospace;font-size:.85rem;line-height:1.5;margin:0 0 8px}
+.p{background:#fff8dc;border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:16px;margin-top:16px}
+.tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.hidden{display:none!important}
+.y{background:var(--yel)}.r{background:var(--red);color:#fff}.g{background:#7be07f}.bl{background:#8fd0ff}.pk{background:var(--pnk)}.w{background:#fff}
+.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
+.grp{background:#fff;border:4px solid var(--ink);padding:10px}.wb{display:flex;flex-wrap:wrap;gap:6px}
+.wb button{background:#ffe27a;font-size:.55rem;padding:8px}.wb .done{background:#7be07f}.wb .act{background:var(--pnk)}
+.note{background:#ffeea0;border:3px solid var(--ink);padding:9px;font-size:.85rem;line-height:1.4}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.st{background:#fff;border:3px solid var(--ink);padding:7px;text-align:center;font-size:.7rem}.st b{display:block;font:.8rem "Press Start 2P",monospace;margin-top:5px}
+.gl{display:grid;grid-template-columns:minmax(0,384px) 1fr;gap:16px;align-items:start;justify-content:center}
+canvas{width:100%;display:block;image-rendering:pixelated;border:4px solid var(--ink);background:#000;touch-action:none}
+.side{background:#fff;border:4px solid var(--ink);padding:12px;text-align:center}
+.pic{font-size:3.5rem;background:#cfe6ff;border:3px solid var(--ink);padding:8px;margin:8px 0}
+.bw{font:1.6rem "Press Start 2P",monospace;color:var(--red);text-shadow:3px 3px 0 var(--yel);letter-spacing:3px;margin:6px 0}
+.chips{display:flex;gap:6px;justify-content:center;margin:10px 0}.chip{border:3px solid var(--ink);background:#eee;padding:7px 9px;font-size:.9rem}.chip.on{background:var(--yel);transform:translateY(-4px);box-shadow:0 4px 0 var(--ink)}
+.fb{min-height:26px;text-align:center;margin:10px 0;font-size:.95rem}
+.bar{height:14px;border:3px solid var(--ink);background:#fff}.bar i{display:block;height:100%;width:0;background:var(--grn)}
+.stars{font-size:2.6rem;letter-spacing:6px;color:#bbb}.stars .e{color:var(--yel);text-shadow:2px 2px 0 var(--ink)}
+#ch{text-align:center}
+.modal{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;padding:12px;z-index:9}
+.modal .p{max-width:760px;width:100%;max-height:92vh;overflow:auto;margin:0}
+.cars{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.car{border:4px solid var(--ink);background:#fff;padding:8px;text-align:center;font-size:.75rem}.car.sel{background:#bff5c0}.car canvas{width:64px;height:64px;margin:4px auto;border:0;background:none}.car button{margin-top:6px;font-size:.5rem;padding:7px}
+footer{text-align:center;color:#fff;padding:16px;font-size:.75rem;text-shadow:2px 2px 0 var(--ink)}
+@media(max-width:760px){.gl{grid-template-columns:1fr}.side{order:-1}.stats{grid-template-columns:repeat(2,1fr)}h1{font-size:.95rem}}
+</style></head><body>
+<div class="app">
+<header><h1>ARTICULAT<span>-RACER</span></h1>
+<div class="tb"><button id="shopBtn" class="y">🛒 GARAGE ⭐<span id="bank">0</span></button><button id="musicBtn" class="g">♫ ON</button></div></header>
+
+<section id="home" class="p"><h2>🏁 PICK A WORD COURSE!</h2>
+<div class="note">Drive with ← → (or A / D, or tap a lane). <b>Yellow ? blocks:</b> tap through them. <b>Green pipe blocks:</b> stay in the lane and <b>stretch the sound</b> (/ffff/…), then hit the vowel to blend it (/fa/). Obstacles cost a ♥ (3 per level). Grab ❤ ⚡ ⏱ power-ups! Finish 15 sounds, then say the whole word.</div>
+<div id="groups" class="groups"></div></section>
+
+<section id="game" class="p hidden">
+<div class="tb" style="justify-content:space-between"><div><h2 id="lt">LEVEL</h2><div id="lg"></div></div>
+<div class="tb"><button id="pauseBtn" class="bl">II PAUSE</button><button id="restartBtn" class="pk">↻</button><button id="backBtn" class="w">← LEVELS</button></div></div>
+<div class="stats"><div class="st">SCORE<b id="score">0</b></div><div class="st">COMBO<b id="combo">0x</b></div><div class="st">ACCURACY<b id="acc">100%</b></div><div class="st">SOUNDS<b id="prog">0/15</b></div></div>
+<div class="gl"><div><canvas id="cv" width="192" height="288"></canvas>
+<div id="fb" class="fb">Press START and drive!</div><div class="tb" style="justify-content:center"><button id="startBtn" class="y">▶ START</button></div></div>
+<aside class="side"><div>TARGET WORD</div><div id="pic" class="pic">🍳</div><div id="tw" class="bw">FAT</div><div id="chips" class="chips"></div>
+<div class="note">Yellow = quick sound. Green pipe = hold the lane and drag the sound, then the next block blends it. ❤ +heart · ⚡ speed up 1.5s · ⏱ slow down.</div>
+<div style="margin-top:10px">PROGRESS</div><div class="bar"><i id="bar"></i></div></aside></div></section>
+
+<section id="ch" class="p hidden"><h2>🎤 BLEND &amp; SAY IT!</h2>
+<div id="cpic" class="pic" style="max-width:200px;margin:12px auto">🍳</div><div id="cw" class="bw">FAT</div>
+<div class="tb" style="justify-content:center;margin:12px 0"><button id="recBtn" class="r">🎙 SPEAK</button><button id="hearBtn" class="bl">🔊 HEAR WORD</button></div>
+<div id="ss" class="note" style="max-width:560px;margin:auto">Say the whole word smoothly.</div>
+<div id="tc" class="hidden"><p>Did you say it clearly?</p><div class="tb" style="justify-content:center"><button id="yes" class="g">✓ YES</button><button id="retry" class="pk">↻ AGAIN</button></div></div>
+<div id="res" class="hidden"><h3 id="rt"></h3><div id="sd" class="stars"></div><p id="rx"></p>
+<div class="tb" style="justify-content:center"><button id="again" class="bl">🎤 AGAIN</button><button id="next" class="y">NEXT →</button><button id="lv" class="w">LEVELS</button></div></div></section>
+
+<div id="shop" class="modal hidden"><div class="p"><h2>🏎 DRIVER GARAGE</h2><div>Coins: ⭐<span id="bank2">0</span></div><div id="cars" class="cars"></div><button id="shopX" class="r">CLOSE</button></div></div>
+<footer>ARTICULAT-RACER · Clear pronunciation earns the stars.</footer></div>
+
+<script>
+(()=>{
+const WORDS=[["FAN","F","🪭"],["FAT","F","🍳"],["FIN","F","🐟"],["FIT","F","👟"],["HAT","H","🎩"],["HEN","H","🐔"],["HIT","H","⚾"],["HIM","H","🧍"],["MAP","M","🗺️"],["MAT","M","🧘"],["MAN","M","🧑"],["MEN","M","👬"],["NAP","N","😴"],["NET","N","🥅"],["PAN","P","🍳"],["PAT","P","🐶"],["PEN","P","🖊️"],["PET","P","🐾"],["SAD","S","😢"],["SAT","S","🪑"],["SIP","S","🥤"],["SIT","S","🪑"],["TAN","T","☀️"],["TAP","T","🚰"],["TEN","T","🔟"],["TIP","T","💡"]];
+const IPA={F:"/f/",H:"/h/",M:"/m/",N:"/n/",S:"/s/",T:"/t/",P:"/p/",D:"/d/",K:"/k/",A:"/æ/",I:"/ɪ/",E:"/ɛ/"};
+const $=i=>document.getElementById(i);
+const LS={g(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const PAL={r:"#e52521",b:"#2e5cff",s:"#ffc79a",k:"#111",w:"#fff",y:"#ffd800",p:"#ff7ac8",n:"#7a4a1e"};
+const CH=[
+{n:"PETE",c:0,car:"#e52521",h:["..rrrr..",".rrrrrr.",".nssssn.","nsskksn.",".ssssss.",".nnnnnn.","..bbbb..",".bbbbbb."]},
+{n:"WRECKER",c:60,car:"#8a5a2b",h:[".nnnnnn.","nnnnnnnn","nssssssn","sskkkkss","ssskksss","ssssssss","rr....rr","rr....rr"]},
+{n:"FIXIT",c:120,car:"#2e5cff",h:["..bbbb..",".bbbbbb.",".ssssss.",".skssks.",".ssssss.","..ssss..",".bbbbbb.","bbbbbbbb"]},
+{n:"CANDY",c:180,car:"#ff7ac8",h:[".pppppp.","pppppppp","pssssssp","pskssksp","pssrrssp",".ssssss.","..pppp..",".pppppp."]},
+{n:"SHROOM",c:250,car:"#43b047",h:["..wwww..",".wrwwrw.","wwwrrwww","wwwwwwww",".ssssss.",".skssks.","..ssss..",".bbbbbb."]}];
+let bank=LS.g("ar-bank",0),owned=LS.g("ar-own",[0]),chosen=LS.g("ar-char",0),idx=1,word="FAT",emoji="🍳";
+let ac=null,musicOn=true,vol=.35,mTimer=null,nb=0,mb=0,rec=null,speechOK=false;
+function head(c,h,x,y,s){h.forEach((row,r)=>[...row].forEach((ch,i)=>{if(PAL[ch]){c.fillStyle=PAL[ch];c.fillRect(x+i*s,y+r*s,s,s)}}))}
+function initAudio(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume()}
+function tone(f,d,t,a=.08,ty="square"){if(!ac)return;const o=ac.createOscillator(),g=ac.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,a*vol),t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.02)}
+// Phoneme sounds: synthesized isolated sounds (no letter names). Drop real recordings in ./audio/ (f.mp3, short-a.mp3 ...) to override.
+const FILES={F:"f",H:"h",M:"m",N:"n",S:"s",T:"t",P:"p",D:"d",K:"k",A:"short-a",I:"short-i",E:"short-e"},fileOK={},fileEl={};
+function loadFiles(){Object.entries(FILES).forEach(([l,n])=>{const a=new Audio("./audio/"+n+".mp3");a.addEventListener("canplaythrough",()=>fileOK[l]=true);a.addEventListener("error",()=>fileOK[l]=false);fileEl[l]=a;a.load()})}
+let OUT=null,curSnd=null;
+function env(g,t,d,a){const at=Math.min(d<.2?.008:.03,d/2),v=Math.max(.0002,a*vol);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+at);g.gain.setValueAtTime(v,t+Math.max(at+.005,d-.12));g.gain.exponentialRampToValueAtTime(.0001,t+d)}
+function noise(d,type,f,q,amp,t){const n=ac.sampleRate*d,b=ac.createBuffer(1,n,ac.sampleRate),o=b.getChannelData(0);for(let i=0;i<n;i++)o[i]=Math.random()*2-1;const s=ac.createBufferSource();s.buffer=b;const fl=ac.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=ac.createGain();env(g,t,d,amp);s.connect(fl);fl.connect(g);g.connect(OUT);s.start(t)}
+function voice(f0,forms,d,t,amp){forms.forEach(([f,q,a])=>{const o=ac.createOscillator(),fl=ac.createBiquadFilter(),g=ac.createGain();o.type="sawtooth";o.frequency.value=f0;fl.type="bandpass";fl.frequency.value=f;fl.Q.value=q;env(g,t,d,amp*a);o.connect(fl);fl.connect(g);g.connect(OUT);o.start(t);o.stop(t+d+.05)})}
+function stopSound(){if(curSnd&&ac){const o=curSnd;curSnd=null;try{o.gain.cancelScheduledValues(0);o.gain.setValueAtTime(o.gain.value,ac.currentTime);o.gain.linearRampToValueAtTime(0,ac.currentTime+.06)}catch(e){}}}
+// dur = how long to drag the sound. Only fricatives (F,H,S), nasals (M,N) and vowels (A,I,E) stretch; stops (T,P,K,D) stay short.
+function phoneme(l,dur){initAudio();stopSound();const t=ac.currentTime+.01,d=dur||.3;
+if(fileOK[l]){try{fileEl[l].currentTime=0;fileEl[l].play();return}catch(e){}}
+OUT=ac.createGain();OUT.connect(ac.destination);curSnd=OUT;
+switch(l){
+case"F":noise(d,"highpass",1500,.5,.5,t);break;
+case"S":noise(d,"bandpass",6500,3,.9,t);break;
+case"H":noise(d,"bandpass",1400,.7,.7,t);break;
+case"M":voice(115,[[250,6,1],[1100,4,.15]],d,t,.9);break;
+case"N":voice(125,[[280,6,1],[1700,5,.3]],d,t,.9);break;
+case"T":noise(.07,"highpass",3500,.8,.9,t);break;
+case"P":noise(.08,"lowpass",900,.8,1,t);break;
+case"K":noise(.09,"bandpass",1900,1.5,1,t);break;
+case"D":noise(.05,"bandpass",2600,1,.5,t);voice(120,[[300,5,1]],.12,t,.9);break;
+case"A":voice(130,[[660,8,1],[1720,10,.6]],d,t,.8);break;
+case"I":voice(130,[[400,8,1],[1900,10,.6]],d,t,.8);break;
+case"E":voice(130,[[530,8,1],[1840,10,.6]],d,t,.8)}}
+function buzz(){initAudio();const t=ac.currentTime;tone(110,.18,t,.2,"sawtooth");tone(82,.2,t+.08,.2,"sawtooth")}
+function coin(){initAudio();const t=ac.currentTime;tone(988,.08,t,.12);tone(1319,.25,t+.08,.12)}
+const ARP=[0,4,7,12,7,4,0,-5];
+function sched(){if(!ac||!musicOn||!G.run||G.pause)return;const b=60/132/2;while(nb<ac.currentTime+.15){tone(262*2**(ARP[mb%8]/12),.1,nb,.045);if(mb%2===0)tone(65.4*(mb%16<8?1:1.33),.2,nb,.1,"triangle");nb+=b;mb++}}
+function startMusic(){if(!musicOn)return;initAudio();stopMusic();nb=ac.currentTime+.05;mb=0;mTimer=setInterval(sched,40)}
+function stopMusic(){clearInterval(mTimer);mTimer=null}
+// ---- game ----
+const cv=$("cv"),cx=cv.getContext("2d"),W=192,H=288,CT=226,CB=258,LX=i=>8+(W-16)/6*(2*i+1);
+const SUS="FHMNSAIE",SP={R:"#ff2d55",Y:"#ffe600",B:"#3aa0ff",W:"#fff"};
+const HEART=[".RR..RR.","RRRRRRRR","RRRRRRRR","RRRRRRRR",".RRRRRR.","..RRRR..","...RR...","........"],
+BOLT=["....YY..","...YY...","..YY....",".YYYYYY.","...YY...","..YY....",".YY.....","........"],
+CLOCK=["..BBBB..",".BWWWWB.","BWWBWWWB","BWWBBWWB","BWWWWWWB",".BWWWWB.","..BBBB..","........"],PU={heart:HEART,bolt:BOLT,clock:CLOCK};
+function sprite(c,s,x,y,k,rep){s.forEach((row,r)=>[...row].forEach((ch,i)=>{if(ch!=="."){c.fillStyle=rep||SP[ch];c.fillRect(x+i*k,y+r*k,k,k)}}))}
+let G={run:false,pause:false,rows:[],sparks:[]};
+function say(t){$("fb").textContent=t}
+function hl(){const c=G.rows.findIndex(r=>!r.done),k=c<0?-1:c%3;[...$("chips").children].forEach((e,i)=>e.classList.toggle("on",i===k))}
+function stats(){const n=G.hits+G.miss;$("score").textContent=G.score;$("combo").textContent=G.combo+"x";$("acc").textContent=(n?Math.round(G.hits/n*100):100)+"%";$("prog").textContent=G.res+"/15";$("bar").style.width=G.res/15*100+"%"}
+function reset(){G={run:false,pause:false,rows:[],sparks:[],t:0,off:0,lane:1,cx:LX(1),score:0,combo:0,hits:0,miss:0,res:0,last:0,raf:0,lives:3,boost:0,slow:0,flash:0};stats()}
+function stop(){G.run=false;cancelAnimationFrame(G.raf);stopMusic();stopSound();if("speechSynthesis" in window)speechSynthesis.cancel()}
+function show(id){["home","game","ch"].forEach(s=>$(s).classList.toggle("hidden",s!==id))}
+function load(i){stop();idx=i;[word,,emoji]=WORDS[i];reset();show("game");$("lt").textContent="LEVEL "+(i+1)+": "+word;$("lg").textContent=WORDS[i][1]+" words";$("tw").textContent=word;$("pic").textContent=emoji;
+$("chips").innerHTML=[...word].map(l=>`<span class="chip">${IPA[l]||l}</span>`).join("");$("startBtn").textContent="▶ START";$("startBtn").classList.remove("hidden");$("pauseBtn").textContent="II PAUSE";say("Press START and drive!");draw()}
+function start(){initAudio();stop();reset();G.run=true;$("startBtn").classList.add("hidden");
+const L=[...new Set(word)],POW=[,,"bolt",,,"heart",,,"clock",,,,"heart"];let top=0;
+// 5 rounds of the word. Early rounds: long (green pipe) blocks for stretchable sounds, wide gaps. Later: short blocks, tight gaps + more speed = real blending.
+[...word.repeat(5)].forEach((l,i)=>{const rd=Math.floor(i/3),j=i%3,long=SUS.includes(l)&&(rd<2||(rd===2&&j%2===0)),h=long?84:30,gap=150-rd*30;
+top=i?top-gap-h:-h-20;const cl=Math.floor(Math.random()*3),pw=POW[i],others=[0,1,2].filter(n=>n!==cl),pl=pw?others[Math.floor(Math.random()*2)]:-1;
+const b=[0,1,2].map(n=>{if(n===cl)return{l:n,t:"b",L:l,c:1,a:1,long,h,o:0,tm:0};
+if(n===pl)return{l:n,t:"p",k:pw,a:1,h:24,o:(h-24)/2};
+const q=Math.random();
+if(q<.3){const o=L.filter(x=>x!==l);return{l:n,t:"b",L:o.length?o[Math.floor(Math.random()*o.length)]:l,c:0,a:1,h:30,o:(h-30)/2}}
+if(q<.75)return{l:n,t:"o",a:1,h:26,o:(h-26)/2};
+return{l:n,a:0}});
+G.rows.push({i,y:top,h,done:false,b})});
+hl();startMusic();say("Yellow = tap through. Green = hold & stretch!");G.last=performance.now();G.raf=requestAnimationFrame(loop)}
+function loop(now){if(!G.run||G.pause)return;const dt=Math.min((now-G.last)/1000,.05);G.last=now;update(dt);draw();G.raf=requestAnimationFrame(loop)}
+function spark(x,y,c){for(let i=0;i<10;i++)G.sparks.push({x,y,vx:(Math.random()-.5)*120,vy:(Math.random()-.8)*100,l:.5,c})}
+function good(r,b){r.done=true;G.res++;G.hits++;G.combo++;G.score+=100+Math.min(G.combo,10)*10+(b.long?50:0);spark(LX(b.l),r.y+b.o+b.h/2,"#fbd000");say(["Nice sound!","Great blending!","Sound locked in!"][G.res%3]);hl();stats()}
+function miss(r,m){r.done=true;G.res++;G.miss++;G.combo=0;say(m);hl();stats()}
+function hurt(x,y){G.lives--;G.combo=0;G.flash=.25;buzz();spark(x,y,"#ff2d55");stats();
+if(G.lives<=0){G.run=false;stopMusic();stopSound();say("Out of hearts! Try again.");$("startBtn").textContent="↻ TRY AGAIN";$("startBtn").classList.remove("hidden")}else say("Ouch! "+G.lives+(G.lives===1?" heart":" hearts")+" left.")}
+function update(dt){G.t+=dt;G.boost=Math.max(0,G.boost-dt);G.slow=Math.max(0,G.slow-dt);G.flash=Math.max(0,G.flash-dt);
+const sp=(62+Math.min(4,Math.floor(G.res/3))*16)*(G.boost>0?1.45:1)*(G.slow>0?.6:1);
+G.off=(G.off+sp*dt)%32;G.cx+=(LX(G.lane)-G.cx)*Math.min(1,dt*14);
+G.rows.forEach(r=>{r.y+=sp*dt;if(r.y>H+10)return;r.b.forEach(b=>{if(!b.a)return;
+const y=r.y+b.o,win=y+b.h>CT+6&&y<CB-4,ov=b.l===G.lane&&win,x=LX(b.l),cy=y+b.h/2;
+if(b.t==="b"&&b.c){
+if(b.long){
+if(ov){if(!b.snd){b.snd=1;phoneme(b.L,(b.h+22)/sp+.1);say("Hold your lane… stretch /"+b.L.toLowerCase()+"/ !")}b.tm+=dt}
+else if(b.snd&&win){stopSound();b.a=false;miss(r,"Stay on the green block to stretch the sound!")}
+else if(y>=CB-4){b.a=false;if(b.tm>=b.h/sp*.7)good(r,b);else miss(r,"Missed it! Keep going.")}
+}else if(ov){b.a=false;phoneme(b.L,.3);good(r,b)}
+else if(y>CB){b.a=false;miss(r,"Missed it! Keep going.")}
+}else if(ov){b.a=false;
+if(b.t==="b"){phoneme(b.L,.25);setTimeout(buzz,200);G.combo=0;G.miss++;stats();spark(x,cy,"#999");say("Wrong sound! Find /"+word[G.res%3].toLowerCase()+"/")}
+else if(b.t==="o")hurt(x,cy);
+else{coin();spark(x,cy,"#3aa0ff");if(b.k==="heart"){if(G.lives<3){G.lives++;say("Heart restored!")}else{G.score+=150;say("+150 bonus!");stats()}}else if(b.k==="bolt"){G.boost=1.5;say("⚡ Speed boost!")}else{G.slow=3;say("⏱ Slow-mo!")}}}
+})});
+G.sparks.forEach(s=>{s.x+=s.vx*dt;s.y+=s.vy*dt;s.vy+=200*dt;s.l-=dt});G.sparks=G.sparks.filter(s=>s.l>0);
+if(G.res>=15&&G.run){G.run=false;stopMusic();setTimeout(()=>{draw();challenge()},800)}}
+function blk(c,b,x,y,nx){const lg=b.long,h=b.h;c.fillStyle=lg?"#0a4a12":"#7a3b00";c.fillRect(x,y,34,h);c.fillStyle=lg?(nx?"#a8ffa8":"#43b047"):(nx?"#fff59a":"#f8b800");c.fillRect(x+2,y+2,30,h-4);c.fillStyle=lg?"#8ef08e":"#fce08a";c.fillRect(x+2,y+2,30,3);
+if(lg){c.fillStyle="#2c8a36";c.fillRect(x+26,y+5,4,h-10)}else{c.fillStyle="#7a3b00";[[4,4],[28,4],[4,24],[28,24]].forEach(([a,d])=>c.fillRect(x+a,y+d,2,2))}
+c.font="bold 16px 'Courier New',monospace";c.textAlign="center";(lg?[y+20,y+h/2+5,y+h-8]:[y+22]).forEach(yy=>{c.fillStyle=lg?"#0a4a12":"#7a3b00";c.fillText(b.L,x+18,yy+1);c.fillStyle="#fff";c.fillText(b.L,x+17,yy)});
+if(b.snd){c.strokeStyle="#fff";c.lineWidth=2;c.strokeRect(x+1,y+1,32,h-2)}}
+function cone(c,x,y){for(let k=0;k<6;k++){c.fillStyle=k===2||k===4?"#fff":"#ff6a00";c.fillRect(x-3-k*2,y+k*4,6+k*4,4)}c.fillStyle="#222";c.fillRect(x-15,y+24,30,3)}
+function draw(){const c=cx;c.fillStyle="#4a4468";c.fillRect(0,0,W,H);
+for(let y=-32;y<H;y+=32){const yy=y+G.off;for(let i=1;i<3;i++){c.fillStyle="#fff";c.fillRect(8+(W-16)/3*i-1,yy,3,16)}
+c.fillStyle=((y/32)&1)?"#fff":"#e52521";c.fillRect(0,yy,8,16);c.fillRect(W-8,yy,8,16);c.fillStyle=((y/32)&1)?"#e52521":"#fff";c.fillRect(0,yy+16,8,16);c.fillRect(W-8,yy+16,8,16)}
+const nr=G.rows.findIndex(q=>!q.done);
+G.rows.forEach((r,ri)=>{if(r.y>H||r.y+r.h<-10)return;r.b.forEach(b=>{if(!b.a)return;const x=LX(b.l),y=r.y+b.o;if(y>H||y+b.h<0)return;
+if(b.t==="b")blk(c,b,x-17,y,ri===nr&&b.c);else if(b.t==="o")cone(c,x,y);else sprite(c,PU[b.k],x-12,y,3)})});
+const ch=CH[chosen],x=Math.round(G.cx);c.fillStyle="#111";c.fillRect(x-14,CT+14,6,10);c.fillRect(x+8,CT+14,6,10);c.fillRect(x-14,CB-4,6,10);c.fillRect(x+8,CB-4,6,10);
+c.fillStyle=ch.car;c.fillRect(x-12,CT+10,24,24);c.fillStyle="#fff";c.fillRect(x-12,CT+10,24,3);c.fillRect(x-4,CT+30,8,3);c.fillStyle="#111";c.fillRect(x-12,CT+10,2,24);c.fillRect(x+10,CT+10,2,24);
+head(c,ch.h,x-8,CT-4,2);
+if(G.boost>0){c.fillStyle="#ffe600";c.fillRect(x-4,CB+6,8,10);c.fillStyle="#ff8c1a";c.fillRect(x-2,CB+10,4,8)}
+G.sparks.forEach(s=>{c.fillStyle=s.c;c.fillRect(Math.round(s.x),Math.round(s.y),3,3)});
+for(let i=0;i<3;i++)sprite(c,HEART,12+i*18,4,2,i<G.lives?null:"#555");
+if(G.boost>0)sprite(c,BOLT,W-34,4,2);if(G.slow>0)sprite(c,CLOCK,W-34,22,2);
+if(G.flash>0){c.fillStyle="rgba(255,45,85,.35)";c.fillRect(0,0,W,H)}}
+function lane(l){if(G.run&&!G.pause)G.lane=Math.max(0,Math.min(2,l))}
+document.addEventListener("keydown",e=>{const k=e.key;if(k==="Escape")pause();if(["ArrowLeft","a","A"].includes(k)){e.preventDefault();lane(G.lane-1)}if(["ArrowRight","d","D"].includes(k)){e.preventDefault();lane(G.lane+1)}});
+cv.addEventListener("pointerdown",e=>{const r=cv.getBoundingClientRect();lane(Math.floor((e.clientX-r.left)/r.width*3))});
+function pause(){if(!G.run&&!G.pause)return;if(!G.pause){G.pause=true;cancelAnimationFrame(G.raf);stopMusic();$("pauseBtn").textContent="▶ GO";say("Paused.")}else{G.pause=false;G.last=performance.now();startMusic();$("pauseBtn").textContent="II PAUSE";G.raf=requestAnimationFrame(loop);say("Go go go!")}}
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&G.run&&!G.pause)pause()});
+// ---- challenge ----
+let passed=false;
+function challenge(){stopMusic();const earn=G.score;bank+=earn;LS.s("ar-bank",bank);coinsUI();show("ch");$("cpic").textContent=emoji;$("cw").textContent=word;$("ss").textContent="Say the whole word naturally. +"+earn+" ⭐ coins earned!";$("res").classList.add("hidden");$("tc").classList.add("hidden");$("recBtn").classList.remove("hidden");$("recBtn").disabled=false;$("recBtn").textContent="🎙 SPEAK"}
+function recog(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){$("ss").textContent="No speech recognition here. Say the word aloud, then self-check.";$("tc").classList.remove("hidden");return}
+try{rec=new SR();rec.lang="en-GB";rec.maxAlternatives=3;$("recBtn").disabled=true;$("ss").textContent="Listening… say the word!";
+rec.onresult=e=>{const h=[...e.results[0]].map(r=>r.transcript.toLowerCase().replace(/[^a-z]/g,"")),ok=h.some(s=>s===word.toLowerCase());$("ss").textContent=ok?"Heard “"+word.toLowerCase()+"”. Great!":"I heard “"+(h[0]||"…")+"”. Try again.";$("recBtn").disabled=false;$("tc").classList.remove("hidden");if(ok)finish(true)};
+rec.onerror=()=>{$("recBtn").disabled=false;$("ss").textContent="Couldn't check that. Try again or self-check.";$("tc").classList.remove("hidden")};rec.onend=()=>$("recBtn").disabled=false;rec.start()}catch(e){$("recBtn").disabled=false;$("tc").classList.remove("hidden")}}
+function finish(p){const n=G.hits+G.miss,a=n?G.hits/n:1;let s=1;if(a>=.67&&p)s=2;if(a>=.95&&p&&G.miss===0)s=3;
+$("res").classList.remove("hidden");$("tc").classList.add("hidden");$("recBtn").classList.add("hidden");
+$("sd").innerHTML=[1,2,3].map(i=>`<span class="${i<=s?"e":""}">★</span>`).join("");$("rt").textContent=s===3?"PERFECT BLEND!":s===2?"GREAT BLENDING!":"COURSE CLEAR!";
+$("rx").textContent=word+": "+G.hits+" hit, "+G.miss+" missed, "+Math.round(a*100)+"% accuracy.";const prev=LS.g("ar-done-"+word,0);LS.s("ar-done-"+word,Math.max(prev,s));levels()}
+// ---- UI ----
+function levels(){const g={};WORDS.forEach((w,i)=>(g[w[1]]||=[]).push([w[0],i]));$("groups").innerHTML="";
+Object.entries(g).forEach(([k,items])=>{const d=document.createElement("div");d.className="grp";d.innerHTML=`<h3>🍄 ${k} WORDS</h3>`;const l=document.createElement("div");l.className="wb";
+items.forEach(([w,i])=>{const b=document.createElement("button");b.textContent=w;const s=LS.g("ar-done-"+w,0);if(s)b.classList.add("done"),b.textContent=w+" "+"★".repeat(s);b.onclick=()=>load(i);l.append(b)});d.append(l);$("groups").append(d)})}
+function coinsUI(){$("bank").textContent=bank;$("bank2").textContent=bank}
+function garage(){coinsUI();$("cars").innerHTML="";CH.forEach((c,i)=>{const d=document.createElement("div");const has=owned.includes(i);d.className="car"+(chosen===i?" sel":"");
+const cv2=document.createElement("canvas");cv2.width=cv2.height=16;const g=cv2.getContext("2d");g.fillStyle=c.car;g.fillRect(1,9,14,7);head(g,c.h,4,0,1);
+d.innerHTML=`<div>${c.n}</div>`;d.append(cv2);const b=document.createElement("button");
+if(chosen===i){b.textContent="DRIVING";b.className="g";b.disabled=true}else if(has){b.textContent="CHOOSE";b.className="y";b.onclick=()=>{chosen=i;LS.s("ar-char",i);garage();draw()}}
+else{b.textContent="BUY ⭐"+c.c;b.className=bank>=c.c?"r":"w";b.disabled=bank<c.c;b.onclick=()=>{bank-=c.c;owned.push(i);chosen=i;LS.s("ar-bank",bank);LS.s("ar-own",owned);LS.s("ar-char",i);coin();garage();draw()}}
+d.append(b);$("cars").append(d)})}
+$("shopBtn").onclick=()=>{garage();$("shop").classList.remove("hidden")};$("shopX").onclick=()=>$("shop").classList.add("hidden");
+$("startBtn").onclick=start;$("pauseBtn").onclick=pause;$("restartBtn").onclick=start;
+const home=()=>{stop();show("home");levels()};$("backBtn").onclick=home;$("lv").onclick=home;
+$("recBtn").onclick=recog;$("yes").onclick=()=>finish(true);$("retry").onclick=()=>{$("tc").classList.add("hidden");$("ss").textContent="Blend the sounds into one smooth word."};
+$("again").onclick=()=>{$("res").classList.add("hidden");$("recBtn").classList.remove("hidden");$("recBtn").disabled=false;recog()};
+$("hearBtn").onclick=()=>{if(!("speechSynthesis" in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(word.toLowerCase());u.lang="en-GB";u.rate=.78;speechSynthesis.speak(u)};
+$("next").onclick=()=>load((idx+1)%WORDS.length);
+$("musicBtn").onclick=()=>{musicOn=!musicOn;$("musicBtn").textContent="♫ "+(musicOn?"ON":"OFF");if(!musicOn)stopMusic();else if(G.run&&!G.pause)startMusic()};
+loadFiles();coinsUI();levels();load(1);
+})();
+</script></body></html>

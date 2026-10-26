@@ -1,0 +1,6 @@
+{
+  "name": "Articulat-Racer",
+  "description": "Phonics and sound blending arcade racer where kids drive through sequential letter tracks to blend sounds into words.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
